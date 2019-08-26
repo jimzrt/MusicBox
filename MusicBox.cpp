@@ -78,6 +78,27 @@ void MusicBox::loop()
 void MusicBox::readSettings()
 {
       EEPROM_getConfig(*config);
+      if(config->id == MUSICBOX_ID){
+          if( mp3.getTotalFolderCount() == config->folderCount){
+            // all good
+            Serial.println("all good");
+            return;
+          } else {
+            //same id, different folder count
+            Serial.println("same id, different folder count");
+          }
+      } else {
+        // different id -> initialize musicBox
+        config = new musicBox_config;
+        config->id = MUSICBOX_ID;
+        config->head = 0;
+        config->lowestFree=0;
+        config->highestFree = mp3.getTotalFolderCount() -1;
+        config->folderCount = mp3.getTotalFolderCount() ;
+        //config = &c;
+        EEPROM_writeConfig(*config);
+         Serial.println("different id -> initialize musicBox");
+      }
       Serial.println(config->id);
 
   // todo
@@ -91,5 +112,5 @@ void MusicBox::readSettings()
   //  else
   //    reinitialize device and memory
 
-  uint8_t availableFolders = mp3.getTotalFolderCount();
+  
 }

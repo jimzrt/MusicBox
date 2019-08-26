@@ -12,9 +12,10 @@ typedef struct
     byte head;
     byte lowestFree;
     byte highestFree;
+    byte folderCount;
 } musicBox_config;
 
 int EEPROM_writeConfig(const musicBox_config& value);
 int EEPROM_getConfig(musicBox_config& value);
 
-#endif //TAUCS_H
+#endif //EEPROMANYTHING_H
