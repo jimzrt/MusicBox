@@ -7,9 +7,7 @@
 #define MusicBox_h
 
 #include "Arduino.h"
-#include "DFMiniMp3.h"
-#include "SoftwareSerial.h"
-#include "MP3Notify.h"
+
 
 
 
@@ -33,13 +31,12 @@ class MusicBox
     State state;
     unsigned long startTime;
     uint8_t nextFreeFolder;
-    //DFRobotDFPlayerMini myDFPlayer;
-   // DFMiniMp3<SoftwareSerial, Mp3Notify> *mp3;
     void tick();
     bool cardPresent();
     void checkCard();
     void checkButtons();
     void checkTimeout();
+    void readSettings();
 };
 
 #endif
