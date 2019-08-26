@@ -5,11 +5,11 @@
 #include "SoftwareSerial.h"
 #include "MP3Notify.h"
 
-#define MUSICBOX_ID 1
 
 
 
-
+// config
+musicBox_config config;
 
 // buttons
 Button btn1(BTN1_PIN);
@@ -23,18 +23,18 @@ DFMiniMp3<SoftwareSerial, Mp3Notify> mp3(mySoftwareSerial);
 // nfc
 Adafruit_PN532 nfc(A2, A3);
 
-void MusicBox::initialize(bool initial)
+void MusicBox::initialize(int id)
 {
-
-  // musicBoxConfig config;
-  // config.alarm = 10;
-  // config.mode = 10;
+  this->id = id;
 
 
 
   // init serial
   Serial.begin(115200);
   Serial.println(F("Lets go my friend"));
+
+    Serial.print("Tagsize: ");
+  Serial.println(sizeof(musicBox_tag));
 
   // init buttons
   // pinMode(BTN1_PIN, INPUT_PULLUP);
@@ -64,22 +64,26 @@ void MusicBox::initialize(bool initial)
     while (1)
       ; // halt
   }
-  // // configure board to read RFID tags
+  // configure board to read RFID tags
   nfc.SAMConfig();
 
-  // // initialize MusicBox
+  // initialize MusicBox
   readSettings();
 }
 
 void MusicBox::loop()
 {
+//  delay(500);
+ // Serial.println(config.id);
 }
 
 void MusicBox::readSettings()
 {
-      EEPROM_getConfig(*config);
-      if(config->id == MUSICBOX_ID){
-          if( mp3.getTotalFolderCount() == config->folderCount){
+   Serial.println(mp3.getTotalFolderCount());
+       // config = new musicBox_config;
+      EEPROM_getConfig(config);
+      if(config.id == this->id){
+          if( mp3.getTotalFolderCount() == config.folderCount){
             // all good
             Serial.println("all good");
             return;
@@ -88,18 +92,22 @@ void MusicBox::readSettings()
             Serial.println("same id, different folder count");
           }
       } else {
-        // different id -> initialize musicBox
-        config = new musicBox_config;
-        config->id = MUSICBOX_ID;
-        config->head = 0;
-        config->lowestFree=0;
-        config->highestFree = mp3.getTotalFolderCount() -1;
-        config->folderCount = mp3.getTotalFolderCount() ;
-        //config = &c;
-        EEPROM_writeConfig(*config);
          Serial.println("different id -> initialize musicBox");
+        // different id -> initialize musicBox
+      
+        config.id = this->id;
+        config.head = 0;
+        config.lowestFree=0;
+        config.highestFree = mp3.getTotalFolderCount() -1;
+        config.folderCount = mp3.getTotalFolderCount() ;
+        //config = &c;
+        int bytesWritten = EEPROM_writeConfig(config);
+        Serial.print("bytes written: ");
+        Serial.println(bytesWritten);
+        
       }
-      Serial.println(config->id);
+      Serial.println(config.id);
+      Serial.println(mp3.getTotalFolderCount());
 
   // todo
   // compare id in eeprom with defined id

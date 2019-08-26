@@ -26,14 +26,14 @@ enum State { PLAYING, IDLE };
 class MusicBox
 {
   public:
-    void initialize(bool initial);
+    void initialize(int id);
     void loop();
   private:
     int id;
     State state;
     unsigned long startTime;
     uint8_t nextFreeFolder;
-    musicBox_config *config;
+   // musicBox_config *config;
     void tick();
     bool cardPresent();
     void checkCard();
