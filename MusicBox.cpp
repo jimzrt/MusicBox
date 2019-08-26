@@ -4,9 +4,17 @@
 #include "DFMiniMp3.h"
 #include "SoftwareSerial.h"
 #include "MP3Notify.h"
-#include <EEPROM.h>
 
 #define MUSICBOX_ID 1
+
+
+
+
+
+// buttons
+Button btn1(BTN1_PIN);
+Button btn2(BTN2_PIN);
+Button btn3(BTN3_PIN);
 
 // mp3 player
 SoftwareSerial mySoftwareSerial(8, 9);
@@ -18,14 +26,25 @@ Adafruit_PN532 nfc(A2, A3);
 void MusicBox::initialize(bool initial)
 {
 
+  // musicBoxConfig config;
+  // config.alarm = 10;
+  // config.mode = 10;
+
+
+
   // init serial
   Serial.begin(115200);
   Serial.println(F("Lets go my friend"));
 
   // init buttons
-  pinMode(BTN1_PIN, INPUT_PULLUP);
-  pinMode(BTN2_PIN, INPUT_PULLUP);
-  pinMode(BTN3_PIN, INPUT_PULLUP);
+  // pinMode(BTN1_PIN, INPUT_PULLUP);
+  // pinMode(BTN2_PIN, INPUT_PULLUP);
+  // pinMode(BTN3_PIN, INPUT_PULLUP);
+  //btn1(BTN1_PIN);
+  //btn1 = new Button(BTN1_PIN);
+  btn1.begin();
+  btn2.begin();
+  btn3.begin();
 
   // init LED Ring
   // todo
@@ -45,7 +64,6 @@ void MusicBox::initialize(bool initial)
     while (1)
       ; // halt
   }
-
   // // configure board to read RFID tags
   nfc.SAMConfig();
 
@@ -59,6 +77,8 @@ void MusicBox::loop()
 
 void MusicBox::readSettings()
 {
+      EEPROM_getConfig(*config);
+      Serial.println(config->id);
 
   // todo
   // compare id in eeprom with defined id

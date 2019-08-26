@@ -7,6 +7,8 @@
 #define MusicBox_h
 
 #include "Arduino.h"
+#include "JC_Button.h" 
+#include "EEPROMAnything.h"
 
 
 
@@ -31,6 +33,7 @@ class MusicBox
     State state;
     unsigned long startTime;
     uint8_t nextFreeFolder;
+    musicBox_config *config;
     void tick();
     bool cardPresent();
     void checkCard();
