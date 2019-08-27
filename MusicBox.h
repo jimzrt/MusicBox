@@ -38,7 +38,7 @@ private:
   void checkCard();
   void checkButtons();
   void checkTimeout();
-  void readSettings();
+  void initializeMusicBox();
 };
 
 #endif

@@ -6,7 +6,7 @@
 #include "MP3Notify.h"
 
 // config
-musicBox_config config;
+MusicBox_config config;
 
 // buttons
 Button btn1(BTN1_PIN);
@@ -28,15 +28,7 @@ void MusicBox::initialize(int id)
   Serial.begin(115200);
   Serial.println(F("Lets go my friend"));
 
-  Serial.print("Tagsize: ");
-  Serial.println(sizeof(musicBox_tag));
-
   // init buttons
-  // pinMode(BTN1_PIN, INPUT_PULLUP);
-  // pinMode(BTN2_PIN, INPUT_PULLUP);
-  // pinMode(BTN3_PIN, INPUT_PULLUP);
-  //btn1(BTN1_PIN);
-  //btn1 = new Button(BTN1_PIN);
   btn1.begin();
   btn2.begin();
   btn3.begin();
@@ -45,9 +37,8 @@ void MusicBox::initialize(int id)
   // todo
 
   // init MiniMp3Player
-  // mp3.reset();
-  mp3.stop();
-  mp3.begin();
+  mp3.reset();
+  //mp3.begin();
   delay(1000);
 
   // init nfc
@@ -63,7 +54,7 @@ void MusicBox::initialize(int id)
   nfc.SAMConfig();
 
   // initialize MusicBox
-  readSettings();
+  initializeMusicBox();
 }
 
 void MusicBox::loop()
@@ -72,10 +63,10 @@ void MusicBox::loop()
   // Serial.println(config.id);
 }
 
-void MusicBox::readSettings()
+void MusicBox::initializeMusicBox()
 {
   Serial.println(mp3.getTotalFolderCount());
-  // config = new musicBox_config;
+  // config = new MusicBox_config;
   EEPROM_getConfig(config);
   if (config.id == this->id)
   {
@@ -101,10 +92,9 @@ void MusicBox::readSettings()
     config.lowestFree = 0;
     config.highestFree = mp3.getTotalFolderCount() - 1;
     config.folderCount = mp3.getTotalFolderCount();
-    //config = &c;
-    int bytesWritten = EEPROM_initialize(config);
-    Serial.print("bytes written: ");
-    Serial.println(bytesWritten);
+    config.freeCount = mp3.getTotalFolderCount();
+    EEPROM_initialize(config);
+    Serial.print("done");
   }
   Serial.println(config.id);
   Serial.println(mp3.getTotalFolderCount());

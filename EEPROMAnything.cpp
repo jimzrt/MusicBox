@@ -2,21 +2,21 @@
 
 uint8_t EEPROM_getNextFree(uint8_t index)
 {
-    musicBox_tag tag;
+    MusicBox_tag tag;
     EEPROM_getTag(index, tag);
     return tag.prev;
 }
 
 uint8_t EEPROM_getPreviousFree(uint8_t index)
 {
-    musicBox_tag tag;
+    MusicBox_tag tag;
     EEPROM_getTag(index, tag);
     return tag.prev;
 }
 
 int EEPROM_writeTag(uint8_t index, TagType tagType, uint8_t prev, uint8_t next)
 {
-    musicBox_tag tag;
+    MusicBox_tag tag;
     tag.tagType = tagType;
     tag.prev = prev;
     tag.next = next;
@@ -28,7 +28,7 @@ int EEPROM_writeTag(uint8_t index, TagType tagType, uint8_t prev, uint8_t next)
     return i;
 }
 
-int EEPROM_getTag(uint8_t index, musicBox_tag &tag)
+int EEPROM_getTag(uint8_t index, MusicBox_tag &tag)
 {
     byte *p = (byte *)(void *)&tag;
     int realIndex = TAG_OFFSET + (index * sizeof(tag));
@@ -38,7 +38,7 @@ int EEPROM_getTag(uint8_t index, musicBox_tag &tag)
     return i;
 }
 
-int EEPROM_initialize(const musicBox_config &value)
+void EEPROM_initialize(const MusicBox_config &value)
 {
 
     EEPROM_writeConfig(value);
@@ -50,7 +50,7 @@ int EEPROM_initialize(const musicBox_config &value)
     EEPROM_writeTag(value.folderCount - 1, FREE, value.folderCount - 2, 0);
 }
 
-int EEPROM_writeConfig(const musicBox_config &value)
+int EEPROM_writeConfig(const MusicBox_config &value)
 {
     int ee = CONFIG_OFFSET;
     const byte *p = (const byte *)(const void *)&value;
@@ -60,7 +60,7 @@ int EEPROM_writeConfig(const musicBox_config &value)
     return i;
 }
 
-int EEPROM_getConfig(musicBox_config &value)
+int EEPROM_getConfig(MusicBox_config &value)
 {
     int ee = CONFIG_OFFSET;
     byte *p = (byte *)(void *)&value;

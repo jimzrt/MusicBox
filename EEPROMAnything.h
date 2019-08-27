@@ -21,20 +21,21 @@ typedef struct
     uint8_t lowestFree;
     uint8_t highestFree;
     uint8_t folderCount;
-} musicBox_config;
+    uint8_t freeCount;
+} MusicBox_config;
 
 typedef struct
 {
     TagType tagType;
     uint8_t prev;
     uint8_t next;
-} musicBox_tag;
+} MusicBox_tag;
 
 uint8_t EEPROM_getPreviousFree(uint8_t index);
 uint8_t EEPROM_getNextFree(uint8_t index);
-int EEPROM_writeConfig(const musicBox_config &value);
-int EEPROM_getConfig(musicBox_config &value);
-int EEPROM_initialize(const musicBox_config &value);
+int EEPROM_writeConfig(const MusicBox_config &value);
+int EEPROM_getConfig(MusicBox_config &value);
+void EEPROM_initialize(const MusicBox_config &value);
 int EEPROM_writeTag(uint8_t index, TagType tagType, uint8_t prev, uint8_t next);
-int EEPROM_getTag(uint8_t index, musicBox_tag &tag);
+int EEPROM_getTag(uint8_t index, MusicBox_tag &tag);
 #endif //EEPROMANYTHING_H
