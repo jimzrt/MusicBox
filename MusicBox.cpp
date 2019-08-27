@@ -5,9 +5,6 @@
 #include "SoftwareSerial.h"
 #include "MP3Notify.h"
 
-
-
-
 // config
 musicBox_config config;
 
@@ -27,13 +24,11 @@ void MusicBox::initialize(int id)
 {
   this->id = id;
 
-
-
   // init serial
   Serial.begin(115200);
   Serial.println(F("Lets go my friend"));
 
-    Serial.print("Tagsize: ");
+  Serial.print("Tagsize: ");
   Serial.println(sizeof(musicBox_tag));
 
   // init buttons
@@ -73,41 +68,46 @@ void MusicBox::initialize(int id)
 
 void MusicBox::loop()
 {
-//  delay(500);
- // Serial.println(config.id);
+  //  delay(500);
+  // Serial.println(config.id);
 }
 
 void MusicBox::readSettings()
 {
-   Serial.println(mp3.getTotalFolderCount());
-       // config = new musicBox_config;
-      EEPROM_getConfig(config);
-      if(config.id == this->id){
-          if( mp3.getTotalFolderCount() == config.folderCount){
-            // all good
-            Serial.println("all good");
-            return;
-          } else {
-            //same id, different folder count
-            Serial.println("same id, different folder count");
-          }
-      } else {
-         Serial.println("different id -> initialize musicBox");
-        // different id -> initialize musicBox
-      
-        config.id = this->id;
-        config.head = 0;
-        config.lowestFree=0;
-        config.highestFree = mp3.getTotalFolderCount() -1;
-        config.folderCount = mp3.getTotalFolderCount() ;
-        //config = &c;
-        int bytesWritten = EEPROM_writeConfig(config);
-        Serial.print("bytes written: ");
-        Serial.println(bytesWritten);
-        
-      }
-      Serial.println(config.id);
-      Serial.println(mp3.getTotalFolderCount());
+  Serial.println(mp3.getTotalFolderCount());
+  // config = new musicBox_config;
+  EEPROM_getConfig(config);
+  if (config.id == this->id)
+  {
+    if (mp3.getTotalFolderCount() == config.folderCount)
+    {
+      // all good
+      Serial.println("all good");
+      return;
+    }
+    else
+    {
+      //same id, different folder count
+      Serial.println("same id, different folder count");
+    }
+  }
+  else
+  {
+    Serial.println("different id -> initialize musicBox");
+    // different id -> initialize musicBox
+
+    config.id = this->id;
+    config.head = 0;
+    config.lowestFree = 0;
+    config.highestFree = mp3.getTotalFolderCount() - 1;
+    config.folderCount = mp3.getTotalFolderCount();
+    //config = &c;
+    int bytesWritten = EEPROM_initialize(config);
+    Serial.print("bytes written: ");
+    Serial.println(bytesWritten);
+  }
+  Serial.println(config.id);
+  Serial.println(mp3.getTotalFolderCount());
 
   // todo
   // compare id in eeprom with defined id
@@ -119,6 +119,4 @@ void MusicBox::readSettings()
   //      read header position
   //  else
   //    reinitialize device and memory
-
-  
 }

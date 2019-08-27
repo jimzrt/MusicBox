@@ -2,34 +2,39 @@
 #define EEPROMANYTHING_H
 
 #include <EEPROM.h>
-#include <Arduino.h>  // for type definitions
+#include <Arduino.h> // for type definitions
 
 #define CONFIG_OFFSET 0
 #define SETTING_OFFSET 10
+#define TAG_OFFSET 20
 
-typedef enum:byte {
-    FREE=0,
-    USED=1
+typedef enum : uint8_t
+{
+    FREE = 55,
+    USED = 56
 } TagType;
 
-typedef struct 
+typedef struct
 {
     int id;
-    byte head;
-    byte lowestFree;
-    byte highestFree;
-    byte folderCount;
+    uint8_t head;
+    uint8_t lowestFree;
+    uint8_t highestFree;
+    uint8_t folderCount;
 } musicBox_config;
 
-typedef struct 
+typedef struct
 {
     TagType tagType;
-    byte prev;
-    byte next;
+    uint8_t prev;
+    uint8_t next;
 } musicBox_tag;
 
-
-int EEPROM_writeConfig(const musicBox_config& value);
-int EEPROM_getConfig(musicBox_config& value);
-
+uint8_t EEPROM_getPreviousFree(uint8_t index);
+uint8_t EEPROM_getNextFree(uint8_t index);
+int EEPROM_writeConfig(const musicBox_config &value);
+int EEPROM_getConfig(musicBox_config &value);
+int EEPROM_initialize(const musicBox_config &value);
+int EEPROM_writeTag(uint8_t index, TagType tagType, uint8_t prev, uint8_t next);
+int EEPROM_getTag(uint8_t index, musicBox_tag &tag);
 #endif //EEPROMANYTHING_H

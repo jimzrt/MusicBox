@@ -11,13 +11,14 @@ Libraries used:
 
 #define MUSICBOX_ID 555
 
-
 MusicBox musicBox;
 
-void setup(){
+void setup()
+{
   musicBox.initialize(MUSICBOX_ID);
 }
 
-void loop(){
+void loop()
+{
   musicBox.loop();
 }
