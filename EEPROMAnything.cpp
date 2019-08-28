@@ -1,5 +1,46 @@
 #include "EEPROMAnything.h"
 
+
+bool EEPROM_updateTag(uint8_t index, TagType tagType){
+    switch (tagType)
+    {
+    case FREE:
+       // validate tag on index is USED
+        break;
+    case USED:
+        // validate tag on index is FREE
+        MusicBox_tag tag;
+        EEPROM_getTag(index, tag);
+        if(tag.tagType != FREE){
+            return false;
+        }
+        // get previous tag and set its next to this tag's next
+        // write previous
+        MusicBox_tag tagPrev;
+        EEPROM_getTag(tag.prev, tagPrev);
+        tagPrev.next = tag.next;
+        EEPROM_writeTag(tag.prev, FREE, tagPrev.prev, tagPrev.next );
+
+        // get next tag and set its prevoius tag to this tag's previous 
+        // write next
+        MusicBox_tag tagNext;
+        EEPROM_getTag(tag.next, tagNext);
+        tagNext.prev = tag.prev;
+        EEPROM_writeTag(tag.next, FREE, tagNext.prev, tagNext.next );
+
+        // set this tag to USED
+        // write tag
+        tag.tagType = USED;
+        EEPROM_writeTag(index, tag.tagType, tag.prev, tag.next);
+
+        return true;
+        break;
+    default:
+        break;
+    }
+}
+
+
 uint8_t EEPROM_getNextFree(uint8_t index)
 {
     MusicBox_tag tag;

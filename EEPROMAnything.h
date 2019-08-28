@@ -31,6 +31,7 @@ typedef struct
     uint8_t next;
 } MusicBox_tag;
 
+bool EEPROM_updateTag(uint8_t index, TagType tagType);
 uint8_t EEPROM_getPreviousFree(uint8_t index);
 uint8_t EEPROM_getNextFree(uint8_t index);
 int EEPROM_writeConfig(const MusicBox_config &value);
