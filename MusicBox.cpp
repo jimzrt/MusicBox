@@ -15,18 +15,21 @@ void MusicBox::initialize()
 
   // init serial
   Serial.begin(115200);
-  Serial.println(F("Lets go my friend"));
+  Serial.println(F("Initializing..."));
 
   // init buttons
+  Serial.println(F("Initializing Buttons..."));
   buttonHandler.initialize();
 
   // init LED Ring
   // todo
 
   // init MiniMp3Player
+  Serial.println(F("Initializing MP3 Player..."));
   musicHandler.initialize();
 
   // init nfc
+  Serial.println(F("Initializing NFC Reader..."));
   if (!nfcHandler.initialize())
   {
     Serial.println(F("Didn't find PN53x board"));
@@ -35,6 +38,7 @@ void MusicBox::initialize()
   }
 
   // initialize MusicBox
+   Serial.println(F("Initializing MusicBox..."));
   initializeMusicBox();
 }
 

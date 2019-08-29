@@ -1,8 +1,8 @@
 #ifndef EEPROMUTILITY_H
 #define EEPROMUTILITY_H
 
+#include <Arduino.h>
 #include <EEPROM.h>
-#include <Arduino.h> // for type definitions
 
 #define CONFIG_OFFSET 0
 #define SETTING_OFFSET 10
