@@ -1,51 +1,88 @@
 #include "EEPROMAnything.h"
 
-
-bool EEPROM_updateTag(uint8_t index, TagType tagType){
+bool EEPROM_updateTag(uint8_t index, TagType tagType)
+{
     switch (tagType)
     {
     case FREE:
-       // validate tag on index is USED
+    {
+        // validate tag on index is USED
+        MusicBox_tag tag;
+        EEPROM_getTag(index, tag);
+        switch (tag.tagType)
+        {
+        case FREE:
+            // tag to update is already set to free
+            return false;
+            break;
+        case USED:
+            // get first available previous free tag
+            // set this tag's next to previous tag's next
+            // set previous next tag to this tag
+            // get next tag
+            // set its prevoius tag to this tag
+
+            return true;
+            break;
+        default:
+            // tag is not initialized in eeprom
+            return false;
+            break;
+        }
         break;
+    }
     case USED:
+    {
         // validate tag on index is FREE
         MusicBox_tag tag;
         EEPROM_getTag(index, tag);
-        if(tag.tagType != FREE){
+        switch (tag.tagType)
+        {
+        case FREE:
+            // get previous tag and set its next to this tag's next
+            // write previous
+            MusicBox_tag tagPrev;
+            EEPROM_getTag(tag.prev, tagPrev);
+            tagPrev.next = tag.next;
+            EEPROM_writeTag(tag.prev, FREE, tagPrev.prev, tagPrev.next);
+
+            // get next tag and set its prevoius tag to this tag's previous
+            // write next
+            MusicBox_tag tagNext;
+            EEPROM_getTag(tag.next, tagNext);
+            tagNext.prev = tag.prev;
+            EEPROM_writeTag(tag.next, FREE, tagNext.prev, tagNext.next);
+
+            // set this tag to USED
+            // write tag
+            tag.tagType = USED;
+            EEPROM_writeTag(index, tag.tagType, tag.prev, tag.next);
+
+            return true;
+            break;
+        case USED:
+            // tag to update is already set to free
             return false;
+            break;
+        default:
+            // tag is not initialized in eeprom
+            return false;
+            break;
         }
-        // get previous tag and set its next to this tag's next
-        // write previous
-        MusicBox_tag tagPrev;
-        EEPROM_getTag(tag.prev, tagPrev);
-        tagPrev.next = tag.next;
-        EEPROM_writeTag(tag.prev, FREE, tagPrev.prev, tagPrev.next );
-
-        // get next tag and set its prevoius tag to this tag's previous 
-        // write next
-        MusicBox_tag tagNext;
-        EEPROM_getTag(tag.next, tagNext);
-        tagNext.prev = tag.prev;
-        EEPROM_writeTag(tag.next, FREE, tagNext.prev, tagNext.next );
-
-        // set this tag to USED
-        // write tag
-        tag.tagType = USED;
-        EEPROM_writeTag(index, tag.tagType, tag.prev, tag.next);
-
-        return true;
         break;
+    }
     default:
+        // unknown tag type
+        return false;
         break;
     }
 }
-
 
 uint8_t EEPROM_getNextFree(uint8_t index)
 {
     MusicBox_tag tag;
     EEPROM_getTag(index, tag);
-    return tag.prev;
+    return tag.next;
 }
 
 uint8_t EEPROM_getPreviousFree(uint8_t index)

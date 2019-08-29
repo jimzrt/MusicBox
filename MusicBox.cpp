@@ -37,8 +37,8 @@ void MusicBox::initialize(int id)
   // todo
 
   // init MiniMp3Player
-  mp3.reset();
-  //mp3.begin();
+  mp3.stop();
+  mp3.begin();
   delay(1000);
 
   // init nfc
@@ -65,12 +65,12 @@ void MusicBox::loop()
 
 void MusicBox::initializeMusicBox()
 {
-  Serial.println(mp3.getTotalFolderCount());
+  uint8_t folderCount = ((uint8_t) mp3.getTotalFolderCount()) - 1;
   // config = new MusicBox_config;
   EEPROM_getConfig(config);
   if (config.id == this->id)
   {
-    if (mp3.getTotalFolderCount() == config.folderCount)
+    if (folderCount == config.folderCount)
     {
       // all good
       Serial.println("all good");
@@ -79,25 +79,25 @@ void MusicBox::initializeMusicBox()
     else
     {
       //same id, different folder count
-      Serial.println("same id, different folder count");
+      Serial.println("Warining: same id, different folder count");
     }
   }
   else
   {
     Serial.println("different id -> initialize musicBox");
     // different id -> initialize musicBox
+    
 
     config.id = this->id;
     config.head = 0;
     config.lowestFree = 0;
-    config.highestFree = mp3.getTotalFolderCount() - 1;
-    config.folderCount = mp3.getTotalFolderCount();
-    config.freeCount = mp3.getTotalFolderCount();
+    config.highestFree =folderCount - 1;
+    config.folderCount = folderCount;
+    config.freeCount = folderCount;
     EEPROM_initialize(config);
     Serial.print("done");
   }
   Serial.println(config.id);
-  Serial.println(mp3.getTotalFolderCount());
 
   // todo
   // compare id in eeprom with defined id
