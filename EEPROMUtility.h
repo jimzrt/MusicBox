@@ -1,5 +1,5 @@
-#ifndef EEPROMANYTHING_H
-#define EEPROMANYTHING_H
+#ifndef EEPROMUTILITY_H
+#define EEPROMUTILITY_H
 
 #include <EEPROM.h>
 #include <Arduino.h> // for type definitions
@@ -39,4 +39,5 @@ int EEPROM_getConfig(MusicBox_config &value);
 void EEPROM_initialize(const MusicBox_config &value);
 int EEPROM_writeTag(uint8_t index, TagType tagType, uint8_t prev, uint8_t next);
 int EEPROM_getTag(uint8_t index, MusicBox_tag &tag);
-#endif //EEPROMANYTHING_H
+
+#endif
