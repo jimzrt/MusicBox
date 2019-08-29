@@ -16,6 +16,7 @@ bool EEPROM_updateTag(uint8_t index, TagType tagType)
             return false;
             break;
         case USED:
+            // todo
             // get first available previous free tag
             // set this tag's next to previous tag's next
             // set previous next tag to this tag
@@ -118,7 +119,7 @@ int EEPROM_getTag(uint8_t index, MusicBox_tag &tag)
 
 void EEPROM_initialize(const MusicBox_config &value)
 {
-
+    // write config and set all tags in eeprom to free
     EEPROM_writeConfig(value);
     EEPROM_writeTag(0, FREE, value.folderCount - 1, 1);
     for (uint8_t i = 1; i < value.folderCount - 1; i++)

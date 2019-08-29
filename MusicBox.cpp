@@ -46,8 +46,9 @@ void MusicBox::loop()
 
 void MusicBox::initializeMusicBox()
 {
-  uint8_t folderCount = musicHandler.getFolderCount();
   EEPROM_getConfig(config);
+
+  uint8_t folderCount = musicHandler.getFolderCount();
   if (config.id == this->id)
   {
     if (folderCount == config.folderCount)
@@ -64,8 +65,8 @@ void MusicBox::initializeMusicBox()
   }
   else
   {
-    Serial.println("different id -> initialize musicBox");
     // different id -> initialize musicBox
+    Serial.println("different id -> initialize musicBox");
 
     config.id = this->id;
     config.head = 0;
@@ -74,7 +75,6 @@ void MusicBox::initializeMusicBox()
     config.folderCount = folderCount;
     config.freeCount = folderCount;
     EEPROM_initialize(config);
-    Serial.print("done");
+    Serial.println("done");
   }
-  Serial.println(config.id);
 }
