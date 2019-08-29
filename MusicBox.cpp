@@ -1,23 +1,18 @@
 #include "Arduino.h"
 #include "MusicBox.h"
-#include "MusicHandler.h"
-#include "EEPROMAnything.h"
-#include "NFCHandler.h"
-
-// config
-MusicBox_config config;
 
 // buttons
 Button btn1(BTN1_PIN);
 Button btn2(BTN2_PIN);
 Button btn3(BTN3_PIN);
 
-// mp3 player
-SoftwareSerial mySoftwareSerial(8, 9);
-DFMiniMp3<SoftwareSerial, Mp3Notify> mp3(mySoftwareSerial);
+MusicBox::MusicBox() : musicHandler(MP3_PIN_RX, MP3_PIN_TX), nfcHandler(A2, A3), startTime(millis())
+{
+}
 
-// nfc
-NFCHandler nfcHandler(A2, A3);
+MusicBox::~MusicBox()
+{
+}
 
 void MusicBox::initialize(int id)
 {
@@ -36,7 +31,8 @@ void MusicBox::initialize(int id)
   // todo
 
   // init MiniMp3Player
-  MUSIC_initialize(&mp3);
+  musicHandler.initialize();
+  // MUSIC_initialize(&mp3);
 
   // init nfc
   if (!nfcHandler.initialize())
@@ -58,7 +54,7 @@ void MusicBox::loop()
 
 void MusicBox::initializeMusicBox()
 {
-  uint8_t folderCount = MUSIC_getFolderCount(&mp3);
+  uint8_t folderCount = musicHandler.getFolderCount();
   // config = new MusicBox_config;
   EEPROM_getConfig(config);
   if (config.id == this->id)
@@ -90,15 +86,4 @@ void MusicBox::initializeMusicBox()
     Serial.print("done");
   }
   Serial.println(config.id);
-
-  // todo
-  // compare id in eeprom with defined id
-  //  if match, compare folder count with actual count
-  //    if match
-  //      read header position
-  //    else
-  //      adjust pointer in eeprom
-  //      read header position
-  //  else
-  //    reinitialize device and memory
 }

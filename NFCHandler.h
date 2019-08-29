@@ -7,7 +7,7 @@
 class NFCHandler
 {
 private:
-    Adafruit_PN532 *nfc;
+    Adafruit_PN532 nfc;
 
 public:
     NFCHandler(const uint8_t pin1, const uint8_t pin2);
