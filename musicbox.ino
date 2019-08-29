@@ -19,11 +19,11 @@
 
 #define MUSICBOX_ID 555
 
-MusicBox musicBox;
+MusicBox musicBox(MUSICBOX_ID);
 
 void setup()
 {
-  musicBox.initialize(MUSICBOX_ID);
+  musicBox.initialize();
 }
 
 void loop()

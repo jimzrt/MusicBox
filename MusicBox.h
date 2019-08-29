@@ -28,9 +28,9 @@ enum State
 class MusicBox
 {
 public:
-  MusicBox();
+  MusicBox(int id);
   ~MusicBox();
-  void initialize(int id);
+  void initialize();
   void loop();
 
 private:

@@ -1,7 +1,7 @@
 #include "MusicBox.h"
 
 
-MusicBox::MusicBox() : musicHandler(MP3_PIN_RX, MP3_PIN_TX), nfcHandler(NFC_PIN_1, NFC_PIN_2), buttonHandler(BTN1_PIN, BTN2_PIN, BTN3_PIN), startTime(millis())
+MusicBox::MusicBox(int id) : id(id), musicHandler(MP3_PIN_RX, MP3_PIN_TX), nfcHandler(NFC_PIN_1, NFC_PIN_2), buttonHandler(BTN1_PIN, BTN2_PIN, BTN3_PIN), startTime(millis())
 {
 }
 
@@ -9,9 +9,9 @@ MusicBox::~MusicBox()
 {
 }
 
-void MusicBox::initialize(int id)
+void MusicBox::initialize()
 {
-  this->id = id;
+ // this->id = id;
 
   // init serial
   Serial.begin(115200);
