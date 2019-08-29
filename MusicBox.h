@@ -8,7 +8,7 @@
 
 #include "Arduino.h"
 #include "JC_Button.h"
-#include "EEPROMAnything.h"
+
 
 // Buttons
 #define BTN1_PIN 2

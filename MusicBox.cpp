@@ -1,9 +1,8 @@
 #include "Arduino.h"
 #include "MusicBox.h"
 #include "Adafruit_PN532.h"
-#include "DFMiniMp3.h"
-#include "SoftwareSerial.h"
-#include "MP3Notify.h"
+#include "MusicHandler.h"
+#include "EEPROMAnything.h"
 
 // config
 MusicBox_config config;
@@ -37,9 +36,8 @@ void MusicBox::initialize(int id)
   // todo
 
   // init MiniMp3Player
-  mp3.stop();
-  mp3.begin();
-  delay(1000);
+  MUSIC_initialize(&mp3);
+ 
 
   // init nfc
   nfc.begin();
@@ -65,7 +63,7 @@ void MusicBox::loop()
 
 void MusicBox::initializeMusicBox()
 {
-  uint8_t folderCount = ((uint8_t) mp3.getTotalFolderCount()) - 1;
+  uint8_t folderCount = MUSIC_getFolderCount(&mp3);
   // config = new MusicBox_config;
   EEPROM_getConfig(config);
   if (config.id == this->id)
