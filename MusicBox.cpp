@@ -1,8 +1,8 @@
 #include "Arduino.h"
 #include "MusicBox.h"
-#include "Adafruit_PN532.h"
 #include "MusicHandler.h"
 #include "EEPROMAnything.h"
+#include "NFCHandler.h"
 
 // config
 MusicBox_config config;
@@ -17,7 +17,7 @@ SoftwareSerial mySoftwareSerial(8, 9);
 DFMiniMp3<SoftwareSerial, Mp3Notify> mp3(mySoftwareSerial);
 
 // nfc
-Adafruit_PN532 nfc(A2, A3);
+NFCHandler nfcHandler(A2, A3);
 
 void MusicBox::initialize(int id)
 {
@@ -37,19 +37,14 @@ void MusicBox::initialize(int id)
 
   // init MiniMp3Player
   MUSIC_initialize(&mp3);
- 
 
   // init nfc
-  nfc.begin();
-  uint32_t versiondata = nfc.getFirmwareVersion();
-  if (!versiondata)
+  if (!nfcHandler.initialize())
   {
     Serial.println(F("Didn't find PN53x board"));
     while (1)
       ; // halt
   }
-  // configure board to read RFID tags
-  nfc.SAMConfig();
 
   // initialize MusicBox
   initializeMusicBox();
@@ -84,12 +79,11 @@ void MusicBox::initializeMusicBox()
   {
     Serial.println("different id -> initialize musicBox");
     // different id -> initialize musicBox
-    
 
     config.id = this->id;
     config.head = 0;
     config.lowestFree = 0;
-    config.highestFree =folderCount - 1;
+    config.highestFree = folderCount - 1;
     config.folderCount = folderCount;
     config.freeCount = folderCount;
     EEPROM_initialize(config);
