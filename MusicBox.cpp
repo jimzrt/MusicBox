@@ -1,12 +1,7 @@
-#include "Arduino.h"
 #include "MusicBox.h"
 
-// buttons
-Button btn1(BTN1_PIN);
-Button btn2(BTN2_PIN);
-Button btn3(BTN3_PIN);
 
-MusicBox::MusicBox() : musicHandler(MP3_PIN_RX, MP3_PIN_TX), nfcHandler(A2, A3), startTime(millis())
+MusicBox::MusicBox() : musicHandler(MP3_PIN_RX, MP3_PIN_TX), nfcHandler(NFC_PIN_1, NFC_PIN_2), buttonHandler(BTN1_PIN, BTN2_PIN, BTN3_PIN), startTime(millis())
 {
 }
 
@@ -23,16 +18,13 @@ void MusicBox::initialize(int id)
   Serial.println(F("Lets go my friend"));
 
   // init buttons
-  btn1.begin();
-  btn2.begin();
-  btn3.begin();
+  buttonHandler.initialize();
 
   // init LED Ring
   // todo
 
   // init MiniMp3Player
   musicHandler.initialize();
-  // MUSIC_initialize(&mp3);
 
   // init nfc
   if (!nfcHandler.initialize())
@@ -55,7 +47,6 @@ void MusicBox::loop()
 void MusicBox::initializeMusicBox()
 {
   uint8_t folderCount = musicHandler.getFolderCount();
-  // config = new MusicBox_config;
   EEPROM_getConfig(config);
   if (config.id == this->id)
   {
