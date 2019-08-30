@@ -44,6 +44,9 @@ void MusicBox::initialize()
 
 void MusicBox::loop()
 {
+  Serial.println(nfcHandler.isCardPresent());
+  Serial.println(nfcHandler.getCardType());
+  delay(1000);
   //  delay(500);
   // Serial.println(config.id);
 }
