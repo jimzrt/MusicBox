@@ -1,7 +1,6 @@
 #ifndef MusicBox_h
 #define MusicBox_h
 
-
 // hardware pins
 #define BTN1_PIN 2
 #define BTN2_PIN 3
@@ -11,13 +10,11 @@
 #define MP3_PIN_RX 8
 #define MP3_PIN_TX 9
 
-
-#include "Arduino.h"
+#include <Arduino.h>
 #include "MusicHandler.h"
 #include "NFCHandler.h"
 #include "ButtonHandler.h"
 #include "EEPROMUtility.h"
-
 
 enum State
 {
@@ -28,25 +25,24 @@ enum State
 class MusicBox
 {
 public:
-  MusicBox(int id);
+  MusicBox(uint8_t id);
   ~MusicBox();
   void initialize();
   void loop();
 
 private:
-  int id;
+  uint8_t id;
   State state;
+  MusicTag currentTag;
   MusicBox_config config;
   unsigned long startTime;
   MusicHandler musicHandler;
   NFCHandler nfcHandler;
   ButtonHandler buttonHandler;
   void tick();
-  bool cardPresent();
-  void checkCard();
-  void checkButtons();
-  void checkTimeout();
   void initializeMusicBox();
+  void handlePlaying();
+  void handleIdle();
 };
 
 #endif

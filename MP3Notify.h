@@ -1,6 +1,5 @@
 #include "Arduino.h"
 
-
 class Mp3Notify
 {
 public:
@@ -19,5 +18,4 @@ public:
   static void OnCardRemoved(uint16_t code);
 
   static void OnUsbRemoved(uint16_t code);
-  
 };

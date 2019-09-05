@@ -16,8 +16,7 @@ typedef enum : uint8_t
 
 typedef struct
 {
-    int id;
-    uint8_t head;
+    uint8_t id;
     uint8_t lowestFree;
     uint8_t highestFree;
     uint8_t folderCount;
@@ -31,7 +30,7 @@ typedef struct
     uint8_t next;
 } MusicBox_tag;
 
-bool EEPROM_updateTag(uint8_t index, TagType tagType);
+bool EEPROM_updateTag(uint8_t index, TagType tagType, MusicBox_config &config);
 uint8_t EEPROM_getPreviousFree(uint8_t index);
 uint8_t EEPROM_getNextFree(uint8_t index);
 int EEPROM_writeConfig(const MusicBox_config &value);
