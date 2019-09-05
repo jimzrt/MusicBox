@@ -24,7 +24,7 @@ bool EEPROM_updateTag(uint8_t index, TagType tagType, MusicBox_config &config)
 
             if (freeCount == 0)
             {
-                EEPROM_writeTag(index, FREE, 255, 255);
+                EEPROM_writeTag(index, FREE, NO_TAG, NO_TAG);
                 config.freeCount++;
                 config.lowestFree = index;
                 config.highestFree = index;
@@ -50,7 +50,7 @@ bool EEPROM_updateTag(uint8_t index, TagType tagType, MusicBox_config &config)
 
                 uint8_t oldNext = prevTag.next;
                 EEPROM_writeTag(prevCandidate, FREE, prevTag.prev, index);
-                if (prevTag.next != 255)
+                if (prevTag.next != NO_TAG)
                 {
                     // get previous tag's next
                     EEPROM_getTag(prevTag.next, prevTag);
@@ -79,15 +79,15 @@ bool EEPROM_updateTag(uint8_t index, TagType tagType, MusicBox_config &config)
                 uint8_t nextCandidate = index + 1;
                 MusicBox_tag nextTag;
                 EEPROM_getTag(nextCandidate, nextTag);
-                while (nextTag.tagType != FREE && nextCandidate < 255)
+                while (nextTag.tagType != FREE && nextCandidate < NO_TAG)
                 {
                     nextCandidate++;
                     EEPROM_getTag(nextCandidate, nextTag);
                 }
 
-                if (nextCandidate == 255)
+                if (nextCandidate == NO_TAG)
                 {
-                    Serial.println("ERROR ERROR > 255");
+                    Serial.println(F("ERROR ERROR > NO_TAG"));
                     return false;
                 }
 
@@ -96,7 +96,7 @@ bool EEPROM_updateTag(uint8_t index, TagType tagType, MusicBox_config &config)
                 EEPROM_writeTag(nextCandidate, FREE, index, nextTag.next);
 
                 //write this tag
-                EEPROM_writeTag(index, FREE, 255, nextCandidate);
+                EEPROM_writeTag(index, FREE, NO_TAG, nextCandidate);
 
                 config.freeCount++;
                 config.lowestFree = index;
@@ -123,7 +123,7 @@ bool EEPROM_updateTag(uint8_t index, TagType tagType, MusicBox_config &config)
         case FREE:
             // get previous tag and set its next to this tag's next
             // write previous
-            if (tag.prev != 255)
+            if (tag.prev != NO_TAG)
             {
                 MusicBox_tag tagPrev;
                 EEPROM_getTag(tag.prev, tagPrev);
@@ -133,7 +133,7 @@ bool EEPROM_updateTag(uint8_t index, TagType tagType, MusicBox_config &config)
 
             // get next tag and set its prevoius tag to this tag's previous
             // write next
-            if (tag.next != 255)
+            if (tag.next != NO_TAG)
             {
 
                 MusicBox_tag tagNext;
@@ -181,18 +181,14 @@ uint8_t EEPROM_getNextFree(uint8_t index)
 {
     MusicBox_tag tag;
     EEPROM_getTag(index, tag);
-    Serial.print("previuos free soing: ");
-    Serial.println(tag.next);
-    return tag.next != 255 ? tag.next : index;
+    return tag.next != NO_TAG ? tag.next : index;
 }
 
 uint8_t EEPROM_getPreviousFree(uint8_t index)
 {
     MusicBox_tag tag;
     EEPROM_getTag(index, tag);
-    Serial.print("previuos free soing: ");
-    Serial.println(tag.prev);
-    return tag.prev != 255 ? tag.prev : index;
+    return tag.prev != NO_TAG ? tag.prev : index;
 }
 
 int EEPROM_writeTag(uint8_t index, TagType tagType, uint8_t prev, uint8_t next)
@@ -223,12 +219,12 @@ void EEPROM_initialize(const MusicBox_config &value)
 {
     // write config and set all tags in eeprom to free
     EEPROM_writeConfig(value);
-    EEPROM_writeTag(1, FREE, 255, 2);
+    EEPROM_writeTag(1, FREE, NO_TAG, 2);
     for (uint8_t i = 2; i < value.folderCount; i++)
     {
         EEPROM_writeTag(i, FREE, i - 1, i + 1);
     }
-    EEPROM_writeTag(value.folderCount, FREE, value.folderCount - 1, 255);
+    EEPROM_writeTag(value.folderCount, FREE, value.folderCount - 1, NO_TAG);
 }
 
 int EEPROM_writeConfig(const MusicBox_config &value)

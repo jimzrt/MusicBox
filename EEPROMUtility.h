@@ -8,6 +8,8 @@
 #define SETTING_OFFSET 10
 #define TAG_OFFSET 20
 
+#define NO_TAG 255
+
 typedef enum : uint8_t
 {
     FREE = 55,

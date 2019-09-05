@@ -31,7 +31,6 @@ public:
     NFCHandler(const uint8_t pin1, const uint8_t pin2);
     ~NFCHandler();
     bool initialize();
-    // bool isCardPresent();
     CardType getCardType();
     bool readTag(MusicTag &tag);
     bool isMusicTag();
