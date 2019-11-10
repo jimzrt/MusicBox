@@ -24,7 +24,7 @@ void ButtonHandler::readButtons()
 
 bool ButtonHandler::detectLongPress(Button &button)
 {
-    if (button.pressedFor(2000))
+    if (button.pressedFor(1000))
     {
         afterLongPress = true;
         return true;

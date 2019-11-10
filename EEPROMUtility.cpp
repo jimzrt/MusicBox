@@ -87,7 +87,6 @@ bool EEPROM_updateTag(uint8_t index, TagType tagType, MusicBox_config &config)
 
                 if (nextCandidate == NO_TAG)
                 {
-                    Serial.println(F("ERROR ERROR > NO_TAG"));
                     return false;
                 }
 

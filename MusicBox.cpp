@@ -13,31 +13,34 @@ void MusicBox::initialize()
 
   // init serial
   Serial.begin(115200);
-  Serial.println(F("Initializing..."));
+  DEBUG_PRINTLN(F("Initializing..."));
 
   // init buttons
-  Serial.println(F("Initializing Buttons..."));
+  DEBUG_PRINTLN(F("Initializing Buttons..."));
   buttonHandler.initialize();
 
   // init LED Ring
   // todo
 
   // init MiniMp3Player
-  Serial.println(F("Initializing MP3 Player..."));
+  DEBUG_PRINTLN(F("Initializing MP3 Player..."));
   musicHandler.initialize();
 
   // init nfc
-  Serial.println(F("Initializing NFC Reader..."));
+  DEBUG_PRINTLN(F("Initializing NFC Reader..."));
   if (!nfcHandler.initialize())
   {
-    Serial.println(F("Didn't find PN53x board"));
+    DEBUG_PRINTLN(F("Didn't find PN53x board"));
     while (1)
       ; // halt
   }
 
   // initialize MusicBox
-  Serial.println(F("Initializing MusicBox..."));
+  DEBUG_PRINTLN(F("Initializing MusicBox..."));
+
+  musicHandler.playVoiceTrackAndWait(AUDIO_HELLO);
   initializeMusicBox();
+  musicHandler.playVoiceTrackAndWait(AUDIO_INITIALIZED);
 }
 
 void MusicBox::initializeMusicBox()
@@ -45,24 +48,26 @@ void MusicBox::initializeMusicBox()
   EEPROM_getConfig(config);
 
   uint8_t folderCount = musicHandler.getFolderCount();
+  DEBUG_PRINT("Foldertrack count");
+  DEBUG_PRINTLN(folderCount);
   if (config.id == this->id)
   {
     if (folderCount == config.folderCount)
     {
       // all good
-      Serial.println("all good");
+      DEBUG_PRINTLN("all good");
       return;
     }
     else
     {
       //same id, different folder count
-      Serial.println("Warining: same id, different folder count");
+      DEBUG_PRINTLN("Warining: same id, different folder count");
     }
   }
   else
   {
     // different id -> initialize musicBox
-    Serial.println("different id -> initialize musicBox");
+    DEBUG_PRINTLN("different id -> initialize musicBox");
 
     config.id = this->id;
     config.lowestFree = 1;
@@ -70,7 +75,7 @@ void MusicBox::initializeMusicBox()
     config.folderCount = folderCount;
     config.freeCount = folderCount;
     EEPROM_initialize(config);
-    Serial.println("done");
+    DEBUG_PRINTLN("done");
   }
 }
 
@@ -90,54 +95,54 @@ void MusicBox::loop()
   delay(100);
 }
 
-void MusicBox::handlePlaying()
-{
-  CardType cardType = nfcHandler.getCardType();
-  if (cardType != TAG)
-  {
-    Serial.println("is playing and tag is not present!");
-    musicHandler.stop();
-    state = IDLE;
-    return;
-  }
-  buttonHandler.readButtons();
-  Serial.println("is playing and tag is present!");
-  Serial.println("handle buttons");
+uint8_t numberOfTracksInFolder = 0;
 
+bool MusicBox::handleButtons()
+{
+  // volume
   if (buttonHandler.pressedNextHold())
   {
     musicHandler.increaseVolume();
+    return true;
   }
   else if (buttonHandler.pressedPreviousHold())
   {
     musicHandler.decreaseVolume();
+    return true;
   }
+
+  // next/previous track
   else if (buttonHandler.pressedNext())
   {
 
-    Serial.print("current tracK: ");
-    Serial.println(currentTag.track);
-    Serial.println("track in folder: ");
-    Serial.println(musicHandler.getFolderTrackCount(currentTag.folder));
-    if (currentTag.track == musicHandler.getFolderTrackCount(currentTag.folder))
+    if (currentTag.track == numberOfTracksInFolder)
     {
-      return;
+      currentTag.track = 1;
     }
-    currentTag.track += 1;
+    else
+    {
+      currentTag.track += 1;
+    }
     nfcHandler.updateMusicTagTrack(currentTag);
+    musicHandler.playTrackName(currentTag.track);
     musicHandler.playFolderTrack(currentTag.folder, currentTag.track);
+    return true;
   }
   else if (buttonHandler.pressedPrevious())
   {
     if (currentTag.track == 1)
-      return;
+      return true;
     currentTag.track -= 1;
     nfcHandler.updateMusicTagTrack(currentTag);
+    musicHandler.playTrackName(currentTag.track);
     musicHandler.playFolderTrack(currentTag.folder, currentTag.track);
+    return true;
   }
+
+  // delete tag
   else if (buttonHandler.pressedConfirmHold())
   {
-    musicHandler.stop();
+    musicHandler.playVoiceTrackAndWait(AUDIO_TAG_DELETE);
     state = IDLE;
     bool confirm = false;
     while (nfcHandler.getCardType() == TAG)
@@ -152,20 +157,65 @@ void MusicBox::handlePlaying()
     }
     if (!confirm)
     {
-      Serial.println("tag not present anymore! goodbye");
-      return;
+      DEBUG_PRINTLN("tag not present anymore! goodbye");
+      musicHandler.playVoiceTrackAndWait(AUDIO_TAG_REMOVED);
+      return true;
     }
     uint8_t folder = currentTag.folder;
     if (!nfcHandler.deleteTag(currentTag))
     {
-      Serial.println("error deleting tag!");
-      return;
+      DEBUG_PRINTLN("error deleting tag!");
+      musicHandler.playVoiceTrackAndWait(AUDIO_TAG_DELETE_FAIL);
+      return true;
     }
     if (folder < config.lowestFree)
     {
       config.lowestFree = folder;
     }
     EEPROM_updateTag(folder, FREE, config);
+    musicHandler.playVoiceTrackAndWait(AUDIO_TAG_DELETED);
+    return true;
+  }
+  return false;
+}
+
+uint16_t cycles = 0;
+void MusicBox::handlePlaying()
+{
+  cycles++;
+  if (cycles % 10 == 0)
+  {
+    CardType cardType = nfcHandler.getCardType();
+    if (cardType != TAG)
+    {
+      DEBUG_PRINTLN("is playing and tag is not present, stopping!");
+      musicHandler.playVoiceTrackAndWait(AUDIO_TAG_REMOVED);
+      state = IDLE;
+      return;
+    }
+  }
+
+  buttonHandler.readButtons();
+  musicHandler.update();
+  if (handleButtons())
+  {
+    return;
+  }
+
+  if (musicHandler.isPlayFinished())
+  {
+    DEBUG_PRINTLN("next track!");
+    if (currentTag.track == numberOfTracksInFolder)
+    {
+      currentTag.track = 1;
+    }
+    else
+    {
+      currentTag.track += 1;
+    }
+    nfcHandler.updateMusicTagTrack(currentTag);
+    musicHandler.playTrackName(currentTag.track);
+    musicHandler.playFolderTrack(currentTag.folder, currentTag.track);
   }
 }
 
@@ -174,14 +224,16 @@ void MusicBox::handleIdle()
   CardType cardType = nfcHandler.getCardType();
   if (cardType == TAG)
   {
-    Serial.println("is IDLE and tag is present!");
+
     MusicTag tag;
     if (!nfcHandler.isMusicTag())
     {
-      Serial.println("new tag found!");
+      musicHandler.playVoiceTrackAndWait(AUDIO_TAG_EMPTY);
+      DEBUG_PRINTLN("new tag found!");
       uint8_t currentFolder = config.lowestFree;
-      Serial.print("playing: ");
-      Serial.println(currentFolder);
+      DEBUG_PRINT("playing: ");
+      DEBUG_PRINTLN(currentFolder);
+      musicHandler.playFolderName(currentFolder);
       musicHandler.playFolderTrack(currentFolder, 1);
       bool confirm = false;
 
@@ -196,63 +248,65 @@ void MusicBox::handleIdle()
         if (buttonHandler.pressedNext())
         {
           currentFolder = EEPROM_getNextFree(currentFolder);
+          musicHandler.playFolderName(currentFolder);
           musicHandler.playFolderTrack(currentFolder, 1);
-          Serial.print("playing: ");
-          Serial.println(currentFolder);
+          DEBUG_PRINT("playing: ");
+          DEBUG_PRINTLN(currentFolder);
         }
         else if (buttonHandler.pressedPrevious())
         {
           currentFolder = EEPROM_getPreviousFree(currentFolder);
+          musicHandler.playFolderName(currentFolder);
           musicHandler.playFolderTrack(currentFolder, 1);
-          Serial.print("playing: ");
-          Serial.println(currentFolder);
+          DEBUG_PRINT("playing: ");
+          DEBUG_PRINTLN(currentFolder);
         }
         delay(50);
       }
       musicHandler.stop();
       if (!confirm)
       {
-        Serial.println("tag not present anymore! goodbye");
+        musicHandler.playVoiceTrackAndWait(AUDIO_TAG_REMOVED);
+        DEBUG_PRINTLN("tag not present anymore! goodbye");
         return;
       }
 
-      Serial.print("you chose ");
-      Serial.println(currentFolder);
+      DEBUG_PRINT("you chose ");
+      DEBUG_PRINTLN(currentFolder);
       if (!nfcHandler.createMusicTag(id, currentFolder, tag))
       {
-        Serial.println("could not write tag!");
+        musicHandler.playVoiceTrackAndWait(AUDIO_TAG_SAVED_FAIL);
+        DEBUG_PRINTLN("could not write tag!");
         return;
       }
-
+      musicHandler.playVoiceTrackAndWait(AUDIO_TAG_SAVED);
       EEPROM_updateTag(currentFolder, USED, config);
     }
     else
     {
-      Serial.println("found musictag!");
+      DEBUG_PRINTLN("found musictag!");
       if (!nfcHandler.readTag(tag))
       {
-        Serial.println("could not read tag!");
+        DEBUG_PRINTLN("could not read tag!");
         return;
       }
     }
 
     if (tag.id != this->id)
     {
-      Serial.println("id does not match!");
+      DEBUG_PRINTLN("id does not match!");
 
       // todo test
       nfcHandler.deleteTag(tag);
       return;
     }
 
+    numberOfTracksInFolder = musicHandler.getFolderTrackCount(tag.folder);
+    musicHandler.playFolderName(tag.folder);
+    musicHandler.playTrackName(tag.track);
     musicHandler.playFolderTrack(tag.folder, tag.track);
     state = PLAYING;
     currentTag = tag;
-    return;
-  }
-  else
-  {
-    Serial.println("is IDLE and tag is not present!");
     return;
   }
 }

@@ -10,8 +10,8 @@
  * ================================================                                        
  * Libraries used:
  * - Adafruit_PN532 v1.0.4
- * - DFPlayer_Mini_Mp3_by_Makuna v1.0.3
- * - JC_Button v2.1.1
+ * - modified DFPlayer_Mini_Mp3_by_Makuna v1.0.4 in libs folder
+ * - JC_Button v2.1.2
  ***************************************************/
 
 #include "Arduino.h"
