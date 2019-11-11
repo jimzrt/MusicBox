@@ -2,7 +2,8 @@
 #define MUSICHANDLER_H
 
 #include <Arduino.h>
-#include "libs/DFMiniMp3.h"
+//#include "libs/DFMiniMp3.h"
+#include "src/libs/DFRobotDFPlayerMini.h"
 #include <SoftwareSerial.h>
 
 #define AUDIO_HELLO 256
@@ -23,12 +24,13 @@ class MusicHandler
 {
 private:
     SoftwareSerial softwareSerial;
-    DFMiniMp3<SoftwareSerial, MusicHandler> mp3;
+    //DFMiniMp3<SoftwareSerial, MusicHandler> mp3;
+    DFRobotDFPlayerMini mp3;
     bool playFinished;
     // events
     void OnPlayFinished(uint16_t replyArg);
     void OnError(uint16_t replyArg);
-    friend class DFMiniMp3<SoftwareSerial, MusicHandler>;
+    //friend class DFMiniMp3<SoftwareSerial, MusicHandler>;
 
 public:
     MusicHandler(uint8_t receivePin, uint8_t transmitPin);

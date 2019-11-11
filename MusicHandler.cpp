@@ -1,6 +1,6 @@
 #include "MusicHandler.h"
 
-MusicHandler::MusicHandler(uint8_t receivePin, uint8_t transmitPin) : softwareSerial(receivePin, transmitPin), mp3(softwareSerial, *this), playFinished(true)
+MusicHandler::MusicHandler(uint8_t receivePin, uint8_t transmitPin) : softwareSerial(receivePin, transmitPin), playFinished(true)
 {
 }
 
@@ -10,16 +10,26 @@ MusicHandler::~MusicHandler()
 
 void MusicHandler::initialize()
 {
-    mp3.stop();
-    mp3.begin();
-    delay(1000);
-    mp3.setVolume(20);
+    softwareSerial.begin(9600);
+    if(!mp3.begin(softwareSerial, true)){
+        Serial.println(F("Unable to begin:"));
+        Serial.println(F("1.Please recheck the connection!"));
+        Serial.println(F("2.Please insert the SD card!"));
+        while(true);
+    }
+    Serial.println(F("DFPlayer Mini online."));
+  
+     mp3.setTimeOut(2000); //Set serial communictaion time out 500ms
+    // mp3.stop();
+    // mp3.begin();
+    // delay(1000);
+     mp3.volume(20);
 }
 
 uint8_t MusicHandler::getFolderCount()
 {
     // -2 because of mp3 folder and ad folder
-    return ((uint8_t)mp3.getTotalFolderCount()) - 2;
+    return ((uint8_t)mp3.readFolderCounts()) - 2;
 }
 
 void MusicHandler::stop()
@@ -29,14 +39,20 @@ void MusicHandler::stop()
 
 void MusicHandler::loop()
 {
-    mp3.loop();
+   // mp3.loop();
+   if(mp3.available()){
+       if(mp3.readType() == DFPlayerPlayFinished){
+           playFinished = true;
+            Serial.println("pd");
+       }
+   }
 }
 
 void MusicHandler::playFolderTrack(uint8_t folder, uint8_t track)
 {
     mp3.stop();
   //  mp3.drainResponses();
-    mp3.playFolderTrack(folder, track);
+    mp3.playFolder(folder, track);
     playFinished = false;
   //  delay(10);
 
@@ -47,7 +63,7 @@ void MusicHandler::playVoiceTrack(uint16_t track)
 {
     mp3.stop();
  //   mp3.drainResponses();
-    mp3.playMp3FolderTrack(track);
+    mp3.playMp3Folder(track);
     playFinished = false;
  //   delay(10);
 
@@ -79,15 +95,15 @@ void MusicHandler::playVoiceTrack(uint16_t track)
 
 void MusicHandler::increaseVolume()
 {
-    mp3.increaseVolume();
+    mp3.volumeUp();
 }
 void MusicHandler::decreaseVolume()
 {
-    mp3.decreaseVolume();
+    mp3.volumeDown();
 }
 uint8_t MusicHandler::getFolderTrackCount(uint8_t folder)
 {
-    return mp3.getFolderTrackCount(folder);
+    return mp3.readFileCountsInFolder(folder);
 }
 void MusicHandler::OnPlayFinished(uint16_t replyArg)
 {
