@@ -33,7 +33,7 @@ bool NFCHandler::initialize()
 CardType NFCHandler::getCardType()
 {
     bufferLength = 0;
-    bool read = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, buffer, &bufferLength, 250);
+    bool read = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, buffer, &bufferLength, 50);
     if (!read)
     {
         return NO_CARD;

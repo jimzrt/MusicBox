@@ -283,6 +283,14 @@ public:
         sendPacket(0x15);
     }
 
+        void drainResponses()
+    {
+        while (_serial.available() > 0)
+        {
+            listenForReply(0x00);
+        }
+    }
+
 private:
     static const uint16_t c_msSendSpace = 50;
 
@@ -316,13 +324,7 @@ private:
     uint16_t _lastSendSpace;
     bool _isOnline;
 
-    void drainResponses()
-    {
-        while (_serial.available() > 0)
-        {
-            listenForReply(0x00);
-        }
-    }
+
 
     void sendPacket(uint8_t command, uint16_t arg = 0, uint16_t sendSpaceNeeded = c_msSendSpace)
     {

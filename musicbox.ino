@@ -17,7 +17,7 @@
 #include "Arduino.h"
 #include "MusicBox.h"
 
-#define MUSICBOX_ID 222
+#define MUSICBOX_ID 223
 
 MusicBox musicBox(MUSICBOX_ID);
 

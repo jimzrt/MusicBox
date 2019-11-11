@@ -27,43 +27,55 @@ void MusicHandler::stop()
     mp3.stop();
 }
 
-void MusicHandler::update()
+void MusicHandler::loop()
 {
     mp3.loop();
 }
 
 void MusicHandler::playFolderTrack(uint8_t folder, uint8_t track)
 {
+    mp3.stop();
+  //  mp3.drainResponses();
     mp3.playFolderTrack(folder, track);
     playFinished = false;
+  //  delay(10);
+
+    
 }
 
 void MusicHandler::playVoiceTrack(uint16_t track)
 {
+    mp3.stop();
+ //   mp3.drainResponses();
     mp3.playMp3FolderTrack(track);
     playFinished = false;
-}
-void MusicHandler::playFolderName(uint8_t folder)
-{
-    playVoiceTrackAndWait(AUDIO_TAG_FOLDER);
-    playVoiceTrackAndWait(folder);
-}
+ //   delay(10);
 
-void MusicHandler::playTrackName(uint16_t track)
-{
-    playVoiceTrackAndWait(AUDIO_TAG_TRACK);
-    playVoiceTrackAndWait(track);
-}
 
-void MusicHandler::playVoiceTrackAndWait(uint16_t track)
-{
-    playVoiceTrack(track);
-    while (!playFinished)
-    {
-        mp3.loop();
-        delay(50);
-    }
+    
 }
+// void MusicHandler::playFolderName(uint8_t folder)
+// {
+//  //   playVoiceTrackAndWait<MusicHandler>(AUDIO_TAG_FOLDER, *this);
+//  //   playVoiceTrackAndWait(folder);
+// }
+
+//void MusicHandler::playTrackName(uint16_t track)
+//{
+  //  playVoiceTrackAndWait(AUDIO_TAG_TRACK);
+ //   playVoiceTrackAndWait(track);
+//}
+
+// template<typename SERVICE_CLASS> 
+// void MusicHandler::playVoiceTrackAndWait(uint16_t track, SERVICE_CLASS& serviceClass)
+// {
+//     playVoiceTrack(track);
+//     while (!playFinished)
+//     {
+//         mp3.loop();
+//         delay(50);
+//     }
+// }
 
 void MusicHandler::increaseVolume()
 {
@@ -79,10 +91,15 @@ uint8_t MusicHandler::getFolderTrackCount(uint8_t folder)
 }
 void MusicHandler::OnPlayFinished(uint16_t replyArg)
 {
+   // delay(10);
     playFinished = true;
+        Serial.println("pd");
+
 }
 void MusicHandler::OnError(uint16_t replyArg)
 {
+    Serial.println("ERRORRR!!!");
+    playFinished = true;
 }
 
 bool MusicHandler::isPlayFinished()

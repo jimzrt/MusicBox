@@ -37,12 +37,44 @@ public:
     uint8_t getFolderCount();
     void stop();
     void play();
-    void update();
+    void loop();
     void playFolderTrack(uint8_t folder, uint8_t track);
     void playVoiceTrack(uint16_t track);
-    void playVoiceTrackAndWait(uint16_t track);
-    void playFolderName(uint8_t folder);
-    void playTrackName(uint16_t track);
+    
+    template <typename SERVICE_CLASS> void playVoiceTrackAndWait(uint16_t track, SERVICE_CLASS *serviceClass)
+    {
+        playVoiceTrack(track);
+        while (!isPlayFinished())
+        {
+          //  mp3.loop();
+          //  if (serviceClass != nullptr)
+       //     {
+         //  Serial.println("before");
+         // mp3.loop();
+               serviceClass->service();
+               delay(30);
+          //  delay(50);
+           //                Serial.println("after");
+
+      //      }
+     //       else
+       //     {
+       //         delay(50);
+      //      }
+        }
+      //  Serial.println("done");
+    }
+
+    template <typename SERVICE_CLASS> void playFolderName(uint8_t folder, SERVICE_CLASS *serviceClass)
+    {
+        playVoiceTrackAndWait<SERVICE_CLASS>(AUDIO_TAG_FOLDER, serviceClass);
+        playVoiceTrackAndWait<SERVICE_CLASS>(folder, serviceClass);
+    }
+    template <typename SERVICE_CLASS> void playTrackName(uint16_t track, SERVICE_CLASS *serviceClass)
+    {
+        playVoiceTrackAndWait<SERVICE_CLASS>(AUDIO_TAG_TRACK, serviceClass);
+        playVoiceTrackAndWait<SERVICE_CLASS>(track, serviceClass);
+    }
     void increaseVolume();
     void decreaseVolume();
     uint8_t getFolderTrackCount(uint8_t folder);

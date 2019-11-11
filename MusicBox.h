@@ -2,7 +2,7 @@
 #define MusicBox_h
 
 // debug flag
-#define DEBUG 0
+#define DEBUG 1
 
 // hardware pins
 #define BTN1_PIN 2
@@ -12,6 +12,8 @@
 #define NFC_PIN_2 A3
 #define MP3_PIN_RX 8
 #define MP3_PIN_TX 9
+#define LEDPIN         6
+#define NUMPIXELS      24
 
 #if DEBUG == 1
 #define DEBUG_PRINT(x) Serial.print(x)
@@ -23,8 +25,10 @@
 
 #include <Arduino.h>
 #include "MusicHandler.h"
+//#include "MusicHandler.cpp"
 #include "NFCHandler.h"
 #include "ButtonHandler.h"
+#include "LEDHandler.h"
 #include "EEPROMUtility.h"
 
 enum State
@@ -40,6 +44,8 @@ public:
   ~MusicBox();
   void initialize();
   void loop();
+  void service_delay(uint16_t sleep);
+  void service();
 
 private:
   uint8_t id;
@@ -50,6 +56,7 @@ private:
   MusicHandler musicHandler;
   NFCHandler nfcHandler;
   ButtonHandler buttonHandler;
+  LEDHandler ledHandler;
   void tick();
   void initializeMusicBox();
   bool handleButtons();
