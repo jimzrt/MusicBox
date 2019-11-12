@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 //#include "libs/DFMiniMp3.h"
+//#include <DFRobotDFPlayerMini.h>
 #include "src/libs/DFRobotDFPlayerMini.h"
 #include <SoftwareSerial.h>
 
@@ -42,37 +43,41 @@ public:
     void loop();
     void playFolderTrack(uint8_t folder, uint8_t track);
     void playVoiceTrack(uint16_t track);
-    
-    template <typename SERVICE_CLASS> void playVoiceTrackAndWait(uint16_t track, SERVICE_CLASS *serviceClass)
+
+    template <typename SERVICE_CLASS>
+    void playVoiceTrackAndWait(uint16_t track, SERVICE_CLASS *serviceClass)
     {
         playVoiceTrack(track);
         while (!isPlayFinished())
         {
-          //  mp3.loop();
-          //  if (serviceClass != nullptr)
-       //     {
-         //  Serial.println("before");
-         // mp3.loop();
-               serviceClass->service();
-               delay(30);
-          //  delay(50);
-           //                Serial.println("after");
+            //  mp3.loop();
+            //  if (serviceClass != nullptr)
+            //     {
+            //  Serial.println("before");
+            // mp3.loop();
+            serviceClass->service_delay(50);
+            //  service_delay
+            //   delay(50);
+            //  delay(50);
+            //                Serial.println("after");
 
-      //      }
-     //       else
-       //     {
-       //         delay(50);
-      //      }
+            //      }
+            //       else
+            //     {
+            //         delay(50);
+            //      }
         }
-      //  Serial.println("done");
+        //  Serial.println("done");
     }
 
-    template <typename SERVICE_CLASS> void playFolderName(uint8_t folder, SERVICE_CLASS *serviceClass)
+    template <typename SERVICE_CLASS>
+    void playFolderName(uint8_t folder, SERVICE_CLASS *serviceClass)
     {
         playVoiceTrackAndWait<SERVICE_CLASS>(AUDIO_TAG_FOLDER, serviceClass);
         playVoiceTrackAndWait<SERVICE_CLASS>(folder, serviceClass);
     }
-    template <typename SERVICE_CLASS> void playTrackName(uint16_t track, SERVICE_CLASS *serviceClass)
+    template <typename SERVICE_CLASS>
+    void playTrackName(uint16_t track, SERVICE_CLASS *serviceClass)
     {
         playVoiceTrackAndWait<SERVICE_CLASS>(AUDIO_TAG_TRACK, serviceClass);
         playVoiceTrackAndWait<SERVICE_CLASS>(track, serviceClass);

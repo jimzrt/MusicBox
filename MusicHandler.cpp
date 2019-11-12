@@ -10,16 +10,19 @@ MusicHandler::~MusicHandler()
 
 void MusicHandler::initialize()
 {
+    //softwareSerial.end();
     softwareSerial.begin(9600);
-    if(!mp3.begin(softwareSerial, true)){
+    //mp3.stop();
+    if(!mp3.begin(softwareSerial, false, false)){
         Serial.println(F("Unable to begin:"));
         Serial.println(F("1.Please recheck the connection!"));
         Serial.println(F("2.Please insert the SD card!"));
         while(true);
     }
     Serial.println(F("DFPlayer Mini online."));
+    delay(4000);
   
-     mp3.setTimeOut(2000); //Set serial communictaion time out 500ms
+     mp3.setTimeOut(5000); //Set serial communictaion time out 500ms
     // mp3.stop();
     // mp3.begin();
     // delay(1000);
@@ -40,19 +43,23 @@ void MusicHandler::stop()
 void MusicHandler::loop()
 {
    // mp3.loop();
-   if(mp3.available()){
-       if(mp3.readType() == DFPlayerPlayFinished){
-           playFinished = true;
-            Serial.println("pd");
-       }
-   }
+//    if(mp3.available()){
+//        if(mp3.readType() == DFPlayerPlayFinished){
+//            playFinished = true;
+//             Serial.println("pd");
+//        }
+//    }
 }
+
+unsigned long start = 0;
 
 void MusicHandler::playFolderTrack(uint8_t folder, uint8_t track)
 {
-    mp3.stop();
+   // mp3.stop();
   //  mp3.drainResponses();
     mp3.playFolder(folder, track);
+  //      delay(100);
+    start = millis();
     playFinished = false;
   //  delay(10);
 
@@ -61,9 +68,11 @@ void MusicHandler::playFolderTrack(uint8_t folder, uint8_t track)
 
 void MusicHandler::playVoiceTrack(uint16_t track)
 {
-    mp3.stop();
+   // mp3.stop();
  //   mp3.drainResponses();
     mp3.playMp3Folder(track);
+     start = millis();
+  //  delay(100);
     playFinished = false;
  //   delay(10);
 
@@ -105,20 +114,34 @@ uint8_t MusicHandler::getFolderTrackCount(uint8_t folder)
 {
     return mp3.readFileCountsInFolder(folder);
 }
-void MusicHandler::OnPlayFinished(uint16_t replyArg)
-{
-   // delay(10);
-    playFinished = true;
-        Serial.println("pd");
+// void MusicHandler::OnPlayFinished(uint16_t replyArg)
+// {
+//    // delay(10);
+//     playFinished = true;
+//         Serial.println("pd");
 
-}
-void MusicHandler::OnError(uint16_t replyArg)
-{
-    Serial.println("ERRORRR!!!");
-    playFinished = true;
-}
+// }
+// void MusicHandler::OnError(uint16_t replyArg)
+// {
+//     Serial.println("ERRORRR!!!");
+//     playFinished = true;
+// }
 
+bool playStarted = false;
 bool MusicHandler::isPlayFinished()
 {
-    return playFinished;
+
+    //Serial.println(mp3.readState(), HEX);
+    uint8_t state = mp3.readState();
+    Serial.println(state, HEX);
+    if(state == 0 && (playStarted || start + 500 < millis())){
+        playStarted = false;
+        return true;
+    } else if(!playStarted && state == 1){
+        playStarted = true;
+        return false;
+    } else {
+        return false;
+    }
+
 }
